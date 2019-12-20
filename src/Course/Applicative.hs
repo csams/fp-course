@@ -101,7 +101,7 @@ instance Applicative Optional where
 -- prop> \x y -> pure x y == x
 instance Applicative ((->) t) where
   pure :: a -> ((->) t a)
-  pure x = \_ -> x
+  pure x = const x
   (<*>) ::
     ((->) t (a -> b))
     -> ((->) t a)
@@ -297,8 +297,8 @@ sequence ::
   Applicative k =>
   List (k a)
   -> k (List a)
-sequence Nil = pure Nil
-sequence (a:.as) =  (:.) <$> a <*> sequence as
+-- sequence (a:.as) =  (:.) <$> a <*> sequence as
+sequence = foldRight (lift2 (:.)) (pure Nil)
 
 -- | Replicate an effect a given number of times.
 --

@@ -62,7 +62,7 @@ get = State $ \s -> (s, s)
 -- >>> runState (put 1) 0
 -- ((),1)
 put :: s -> State s ()
-put x = State $ \_ -> ((), x)
+put x = State $ const ((), x)
 
 -- | Implement the `Functor` instance for `State s`.
 --
@@ -94,10 +94,9 @@ instance Applicative (State s) where
     State s (a -> b)
     -> State s a
     -> State s b
-  l <*> r = State $ \s ->
-                    let (f, s') = runState l s
-                        (a, s'') = runState r s'
-                    in (f a, s'')
+  l <*> r = State  $ \s -> let (f, s') = runState l s
+                               (a, s'') = runState r s'
+                           in  (f a, s'')
 
 -- | Implement the `Monad` instance for `State s`.
 --
@@ -116,7 +115,7 @@ instance Monad (State s) where
     -> State s b
   f =<< sa = State $ \s ->
                         let (a, s') = runState sa s
-                        in runState (f a) s'
+                        in  runState (f a) s'
 
 -- | Find the first element in a `List` that satisfies a given predicate.
 -- It is possible that no element is found, hence an `Optional` result.
